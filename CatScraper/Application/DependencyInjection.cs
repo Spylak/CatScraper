@@ -9,6 +9,7 @@ public static class DependencyInjection
     {
         builder.Services.Configure<CatsApiOption>(builder.Configuration.GetSection("CatsApi"));
         builder.Services.AddSingleton<CatFetchLockHelper>();
+        builder.Services.AddMemoryCache();
         return builder;
     }
 }
