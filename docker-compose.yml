@@ -1,0 +1,21 @@
+services:
+  
+  api:
+    build:
+      context: ./CatScraper/.
+      dockerfile: CatScraper/Dockerfile
+    image: catscraper:latest
+    container_name: cat-scraper-api
+    ports:
+      - 5195:5195
+    depends_on:
+      - database
+
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: cat-scraper-db
+    environment:
+      - ACCEPT_EULA=true
+      - MSSQL_SA_PASSWORD=Admin12345
+    ports:
+      - 1433:1433

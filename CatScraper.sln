@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatScraper", "CatScraper\CatScraper.csproj", "{7FD60FB0-DBF9-4BE5-A7C1-031BB71B2E29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{92B622C1-20BF-4122-ADA7-5DE8C049C196}"
+	ProjectSection(SolutionItems) = preProject
+		Makefile = Makefile
+		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatScraper.Tests", "CatScraper.Tests\CatScraper.Tests.csproj", "{CE31560D-3CA0-42E4-A5C6-E0659E0FB5A0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FD60FB0-DBF9-4BE5-A7C1-031BB71B2E29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FD60FB0-DBF9-4BE5-A7C1-031BB71B2E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FD60FB0-DBF9-4BE5-A7C1-031BB71B2E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FD60FB0-DBF9-4BE5-A7C1-031BB71B2E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE31560D-3CA0-42E4-A5C6-E0659E0FB5A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE31560D-3CA0-42E4-A5C6-E0659E0FB5A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE31560D-3CA0-42E4-A5C6-E0659E0FB5A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE31560D-3CA0-42E4-A5C6-E0659E0FB5A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
