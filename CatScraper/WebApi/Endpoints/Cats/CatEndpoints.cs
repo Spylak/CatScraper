@@ -61,7 +61,11 @@ public static class CatEndpoints
                 if (pageSize < 0)
                     return Results.BadRequest(new ApiResponseResult(true,
                         [Error.Validation(description: "Page size should be 0 and above.")]));
-
+                
+                if (tag?.Length > 50)
+                    return Results.BadRequest(new ApiResponseResult(true,
+                        [Error.Validation(description: "Tag characters cannot exceed 50.")]));
+                
                 var response = await mediator.Send(new GetCatsRequest()
                 {
                     PageSize = pageSize,
