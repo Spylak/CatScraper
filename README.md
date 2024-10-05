@@ -4,7 +4,7 @@
 Please note: This repository is intended for learning purposes to explore .NET minimal APIs concepts, Unit Testing and Docker Development setup.
 
 Cat Scraper API is an ASP.NET Core Web API application that interacts with an external Cat-as-a-Service (CaaS) API to fetch, store, and serve cat images. This application demonstrates various features including image handling, database operations with Entity Framework Core, RESTful API design, and OpenAPI (Swagger) documentation.
-~~~~
+
 Key Features:
 - Fetch and store cat images from an external API
 - Store cat data (image, dimensions, tags) in SQL Server using Entity Framework Core
