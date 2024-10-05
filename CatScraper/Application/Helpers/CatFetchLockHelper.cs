@@ -1,19 +1,37 @@
+using System.Collections.Concurrent;
+
 namespace CatScraper.Application.Helpers;
 
-public class CatFetchLockHelper
+internal sealed class CatFetchLockHelper
 {
-    private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+    private static readonly Lazy<CatFetchLockHelper> LazyInstance = new(() => new CatFetchLockHelper());
+    public static CatFetchLockHelper Instance => LazyInstance.Value;
+    private readonly ConcurrentQueue<Func<Task>> _tasks = new ();
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    public async Task RunWithLockAsync(Func<Task> action)
+    public async Task AddTaskToQueue(Func<Task> action)
     {
-        await _lock.WaitAsync();
+        _tasks.Enqueue(action);
+        await ExecuteTasks();
+    }
+
+    private async Task ExecuteTasks()
+    {
+        await _semaphore.WaitAsync();
         try
         {
-            await action();
+            while (_tasks.TryDequeue(out var task))
+            {
+                await task();
+            }
         }
         finally
         {
-            _lock.Release();
+            _semaphore.Release();
         }
+    }
+
+    private CatFetchLockHelper()
+    {
     }
 }

@@ -15,8 +15,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         .Build();
 
     public bool IsDatabasePopulated { get; set; } = false;
-    public readonly string CatApiKey = "";
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureLogging(logging =>

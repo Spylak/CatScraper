@@ -11,6 +11,12 @@ namespace CatScraper.Tests;
 public class ApiTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly CustomWebApplicationFactory _webApplicationFactory;
+    private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+    {
+        TypeNameHandling = TypeNameHandling.Auto,
+        NullValueHandling = NullValueHandling.Ignore
+    };
+    private readonly string _catApiKey = "";
 
     public ApiTests(CustomWebApplicationFactory webApplicationFactory)
     {
@@ -19,18 +25,14 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory>
 
     private async Task PopulateDatabase(HttpClient httpClient)
     {
-        var successfulTasks = new List<bool>();
-        httpClient.DefaultRequestHeaders.Add("x-api-key",_webApplicationFactory.CatApiKey);
+        var tasks = new List<Task>();
+        httpClient.DefaultRequestHeaders.Add("x-api-key",_catApiKey);
         for (int i = 0; i < 4; i++)
         {
-            var response = await httpClient.PostAsync("api/cats/fetch", new StringContent(""));
-            if (response.IsSuccessStatusCode)
-            {
-                successfulTasks.Add(true);
-            }
-            await Task.Delay(500);
+            tasks.Add(httpClient.PostAsync("api/cats/fetch", new StringContent("")));
         }
-        _webApplicationFactory.IsDatabasePopulated = successfulTasks.Any(i=>i);
+        await Task.WhenAll(tasks);
+        _webApplicationFactory.IsDatabasePopulated = tasks.Any(i => i.IsCompletedSuccessfully);
     }
     
     [Fact]
@@ -41,7 +43,7 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory>
         {
             await PopulateDatabase(httpClient);
         }
-        httpClient.DefaultRequestHeaders.Add("x-api-key",_webApplicationFactory.CatApiKey);
+        httpClient.DefaultRequestHeaders.Add("x-api-key", _catApiKey);
         var response = await httpClient.PostAsync("api/cats/fetch", new StringContent(""));
         response.StatusCode
             .Should()
@@ -64,10 +66,10 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory>
         strBldr.Append(1);
         strBldr.Append('&');
         strBldr.Append("pageSize=");
-        strBldr.Append(25);
+        strBldr.Append(100);
         strBldr.Append('&');
         strBldr.Append("tag=");
-        strBldr.Append("Calm");
+        strBldr.Append("Active");
         var uri = strBldr.ToString();
         var response = await httpClient.GetAsync(uri);
         response.StatusCode
@@ -75,10 +77,9 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory>
             .Be(HttpStatusCode.OK);
         
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<ApiResponse>(content);
-        var catList = ((JArray?)result?.Data)?.ToObject<List<GetCatsResponse>>();
-        catList.Should().NotBeNull();
-        catList!.Count.Should().BeGreaterThan(0);
+        var catList = JsonConvert.DeserializeObject<ApiResponseResult<List<GetCatsResponse>>>(content, _jsonSerializerSettings);
+        catList?.Data.Should().NotBeNull();
+        catList!.Data!.Count.Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -125,10 +126,9 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory>
             .Be(HttpStatusCode.OK);
 
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<ApiResponse>(content);
-        var catList = ((JArray?)result?.Data)?.ToObject<List<GetCatsResponse>>();
-        catList.Should().NotBeNull();
-        catList!.Count.Should().Be(0);
+        var catList = JsonConvert.DeserializeObject<ApiResponseResult<List<GetCatsResponse>>>(content, _jsonSerializerSettings);
+        catList?.Data.Should().NotBeNull();
+        catList!.Data!.Count.Should().Be(0);
     }
 
     [Fact]
@@ -146,11 +146,10 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory>
             .Be(HttpStatusCode.OK);
         
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<ApiResponse>(content);
-        var catList = ((JArray?)result?.Data)?.ToObject<List<GetCatsResponse>>();
-        catList.Should().NotBeNull();
-        catList!.Count.Should().BeGreaterThan(0);
-        catList.Count.Should().BeLessOrEqualTo(25);
+        var catList = JsonConvert.DeserializeObject<ApiResponseResult<List<GetCatsResponse>>>(content, _jsonSerializerSettings);
+        catList?.Data.Should().NotBeNull();
+        catList!.Data!.Count.Should().BeGreaterThan(0);
+        catList.Data!.Count.Should().BeLessOrEqualTo(25);
     }
 
     [Fact]
@@ -168,10 +167,9 @@ public class ApiTests : IClassFixture<CustomWebApplicationFactory>
             .Be(HttpStatusCode.OK);
 
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<ApiResponse>(content);
-        var catList = ((JArray?)result?.Data)?.ToObject<List<GetCatsResponse>>();
-        catList.Should().NotBeNull();
-        catList!.Count.Should().BeGreaterThan(0);
-        catList.Count.Should().BeLessOrEqualTo(10);
+        var catList = JsonConvert.DeserializeObject<ApiResponseResult<List<GetCatsResponse>>>(content, _jsonSerializerSettings);
+        catList?.Data.Should().NotBeNull();
+        catList!.Data!.Count.Should().BeGreaterThan(0);
+        catList.Data!.Count.Should().BeLessOrEqualTo(10);
     }
 }

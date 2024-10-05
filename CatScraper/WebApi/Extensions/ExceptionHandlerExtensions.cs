@@ -48,11 +48,11 @@ public static class ExceptionHandlerExtensions
                             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             ctx.Response.ContentType = "application/problem+json";
                             await ctx.Response.WriteAsJsonAsync(
-                                new ApiResponse
+                                new ApiResponseResult()
                                 {
                                     Data = "See application log for stack trace.",
-                                    IsSuccess = false,
-                                    Errors = {{"Main", useGenericReason ? genericErrorMessage : reason}}
+                                    IsError = true,
+                                    Messages = {{"Main", useGenericReason ? genericErrorMessage : reason}}
                                 });
                         }
                     });

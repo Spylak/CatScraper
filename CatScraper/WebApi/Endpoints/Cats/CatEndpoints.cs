@@ -22,18 +22,18 @@ public static class CatEndpoints
 
             if (response.IsError)
             {
-                return Results.BadRequest(new ApiResponse(false, response.Errors));
+                return Results.BadRequest(new ApiResponseResult(response.IsError, response.Errors));
             }
 
             if (response.Value.Count < 25)
             {
-                return Results.Ok(new ApiResponse(true,
+                return Results.Ok(new ApiResponseResult(response.IsError, response.Value,
                 [
                     Error.Conflict(description: "You have reached the last page of images available for download.")
-                ], response.Value));
+                ]));
             }
 
-            return Results.Ok(new ApiResponse(true, response.Value));
+            return Results.Ok(new ApiResponseResult(response.IsError, response.Value));
         });
 
         group.MapGet("{id}", async (int id, HttpRequest request, IMediator mediator) =>
@@ -46,21 +46,21 @@ public static class CatEndpoints
 
             if (response.FirstError.Code == "General.NotFound")
             {
-                return Results.NotFound(new ApiResponse(false, response.Errors));
+                return Results.NotFound(new ApiResponseResult(response.IsError, response.Errors));
             }
 
-            return Results.Ok(new ApiResponse(true, response.Value));
+            return Results.Ok(new ApiResponseResult(response.IsError, response.Value));
         });
 
         group.MapGet("",
             async (IMediator mediator, HttpRequest request, int page = 1, int pageSize = 10, string? tag = null) =>
             {
                 if (page <= 0)
-                    return Results.BadRequest(new ApiResponse(false,
+                    return Results.BadRequest(new ApiResponseResult(true,
                         [Error.Validation(description: "Page should be 1 and above.")]));
 
                 if (pageSize < 0)
-                    return Results.BadRequest(new ApiResponse(false,
+                    return Results.BadRequest(new ApiResponseResult(true,
                         [Error.Validation(description: "Page size should be 0 and above.")]));
 
                 var response = await mediator.Send(new GetCatsRequest()
@@ -71,7 +71,7 @@ public static class CatEndpoints
                     BaseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}"
                 });
 
-                return Results.Ok(new ApiResponse(true, response.Value));
+                return Results.Ok(new ApiResponseResult(response.IsError, response.Value));
             });
 
         return group;

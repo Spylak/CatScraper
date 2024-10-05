@@ -20,12 +20,13 @@ public class FetchCatsRequestHandler : IRequestHandler<FetchCatsRequest, ErrorOr
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly CatFetchLockHelper _catFetchLockHelper;
     private ConcurrentDictionary<string, Image> Images { get; set; } = [];
+
     public FetchCatsRequestHandler(IOptions<CatsApiOption> catsApiOptions, IAppDbContext dbContext,
-        IHttpClientFactory httpClientFactory, CatFetchLockHelper catFetchLockHelper)
+        IHttpClientFactory httpClientFactory)
     {
         _dbContext = dbContext;
         _httpClientFactory = httpClientFactory;
-        _catFetchLockHelper = catFetchLockHelper;
+        _catFetchLockHelper = CatFetchLockHelper.Instance;
         _catsApiKey = string.IsNullOrWhiteSpace(catsApiOptions.Value.ApiKey) ? null : catsApiOptions.Value.ApiKey;
     }
 
@@ -35,7 +36,7 @@ public class FetchCatsRequestHandler : IRequestHandler<FetchCatsRequest, ErrorOr
         ErrorOr<List<FetchCatsResponse>> result =
             Error.Failure(description: "FetchCatsRequestHandler is already running. Please wait.");
 
-        await _catFetchLockHelper.RunWithLockAsync(async () =>
+        await _catFetchLockHelper.AddTaskToQueue(async () =>
         {
             result = await ExecuteHandle(request, cancellationToken);
         });
@@ -217,20 +218,17 @@ public class FetchCatsRequestHandler : IRequestHandler<FetchCatsRequest, ErrorOr
         var catTagList = new List<CatTag>();
         foreach (var apiResponse in apiResponses)
         {
-            catTagList.Add(new CatTag()
+            var cat = new Cat()
             {
-                Cat = new Cat()
-                {
-                    CatId = apiResponse.Id,
-                    Height = apiResponse.Height,
-                    Width = apiResponse.Width,
-                    Image = Images[apiResponse.Id]
-                },
-                Tag = tags.FirstOrDefault(i => apiResponse
-                    .Breeds
-                    .Any(j =>
-                        j.Temperament.Contains(i.Name)))
-            });
+                CatId = apiResponse.Id,
+                Height = apiResponse.Height,
+                Width = apiResponse.Width,
+                Image = Images[apiResponse.Id]
+            };
+            catTagList.AddRange(tags
+                .Where(i => apiResponse.Breeds
+                        .Any(j => j.Temperament.Contains(i.Name)))
+                .Select(tag => new CatTag { Cat = cat, Tag = tag }));
         }
 
         return catTagList;

@@ -18,10 +18,8 @@ public class GetCatsRequestHandler : IRequestHandler<GetCatsRequest, ErrorOr<Lis
     public async Task<ErrorOr<List<GetCatsResponse>>> Handle(GetCatsRequest request, CancellationToken cancellationToken)
     {
         var cats = await _dbContext.Set<Cat>()
-            .WhereIf(request.Tag is not null, i =>
-                i.CatTags
-                    .Where(ct => ct.Tag != null)
-                    .Any(j => j.Tag!.Name == request.Tag))
+            .WhereIf(!string.IsNullOrWhiteSpace(request.Tag), i =>
+                i.CatTags.Any(ct => ct.Tag != null && ct.Tag.Name == request.Tag))
             .SkipIf(request is { Page: not null, PageSize: not null }, (request.Page - 1) * request.PageSize)
             .TakeIf(request.PageSize.HasValue, request.PageSize)
             .Select(c => new GetCatsResponse

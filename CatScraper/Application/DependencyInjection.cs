@@ -8,7 +8,6 @@ public static class DependencyInjection
     public static WebApplicationBuilder AddApplicationLayer(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<CatsApiOption>(builder.Configuration.GetSection("CatsApi"));
-        builder.Services.AddSingleton<CatFetchLockHelper>();
         builder.Services.AddMemoryCache();
         return builder;
     }
