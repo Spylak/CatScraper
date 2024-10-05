@@ -51,8 +51,11 @@ public class FetchCatsRequestHandler : IRequestHandler<FetchCatsRequest, ErrorOr
         var fetchCatsResponses = new List<CatsApiResponse>();
         try
         {
-            _catsApiKey ??= request.ApiKey;
-            if (string.IsNullOrWhiteSpace(_catsApiKey))
+            if (!string.IsNullOrWhiteSpace(request.ApiKey))
+            {
+                _catsApiKey = request.ApiKey;
+            }
+            else if (string.IsNullOrWhiteSpace(_catsApiKey))
             {
                 return Error.Unauthorized(description: "Api key not found.");
             }
