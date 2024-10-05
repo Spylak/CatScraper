@@ -14,7 +14,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         .WithPortBinding(1433, 1433)
         .Build();
 
-    public bool IsDatabasePopulated { get; set; } = false;
+    public bool PopulateDatabaseInvoked { get; set; } = false;
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureLogging(logging =>

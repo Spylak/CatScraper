@@ -20,6 +20,7 @@ public class GetCatsRequestHandler : IRequestHandler<GetCatsRequest, ErrorOr<Lis
         var cats = await _dbContext.Set<Cat>()
             .WhereIf(!string.IsNullOrWhiteSpace(request.Tag), i =>
                 i.CatTags.Any(ct => ct.Tag != null && ct.Tag.Name == request.Tag))
+            .OrderBy(i => i.Id)
             .SkipIf(request is { Page: not null, PageSize: not null }, (request.Page - 1) * request.PageSize)
             .TakeIf(request.PageSize.HasValue, request.PageSize)
             .Select(c => new GetCatsResponse
