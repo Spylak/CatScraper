@@ -14,6 +14,10 @@ public class CatConfiguration : BaseEntityConfiguration<Cat>
 
         builder.HasIndex(i => i.CatId)
             .IsUnique();
+
+        builder.Property(i => i.CatId)
+            .HasMaxLength(50)
+            .IsRequired();
         
         builder.Property(i => i.Created)
             .HasDefaultValueSql("getutcdate()");

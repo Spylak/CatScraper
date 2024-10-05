@@ -38,18 +38,17 @@ public static class CatEndpoints
 
         group.MapGet("{id}", async (int id, HttpRequest request, IMediator mediator) =>
         {
+            if (id <= 0)
+                return Results.BadRequest(new ApiResponseResult(true,
+                    [Error.Validation(description: "Id should be 1 and above.")]));
+
             var response = await mediator.Send(new GetCatRequest()
             {
                 Id = id,
                 BaseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}"
             });
 
-            if (response.FirstError.Code == "General.NotFound")
-            {
-                return Results.NotFound(new ApiResponseResult(response.IsError, response.Errors));
-            }
-
-            return Results.Ok(new ApiResponseResult(response.IsError, response.Value));
+            return response.IsError ? Results.BadRequest(new ApiResponseResult(response.IsError, response.Errors)) : Results.Ok(new ApiResponseResult(response.IsError, response.Value));
         });
 
         group.MapGet("",
@@ -70,8 +69,8 @@ public static class CatEndpoints
                     Tag = tag,
                     BaseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}"
                 });
-
-                return Results.Ok(new ApiResponseResult(response.IsError, response.Value));
+                
+                return response.IsError ? Results.BadRequest(new ApiResponseResult(response.IsError, response.Errors)) : Results.Ok(new ApiResponseResult(response.IsError, response.Value));
             });
 
         return group;

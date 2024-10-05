@@ -15,6 +15,10 @@ public class TagConfiguration : BaseEntityConfiguration<Tag>
         builder.HasIndex(i => i.Name)
             .IsUnique();
         
+        builder.Property(i => i.Name)
+            .HasMaxLength(50)
+            .IsRequired();
+        
         builder.Property(i => i.Created)
             .HasDefaultValueSql("getutcdate()");
         

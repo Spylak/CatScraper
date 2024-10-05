@@ -1,4 +1,5 @@
 using CatScraper.Application.Features.Images.Queries.GetImage;
+using CatScraper.WebApi.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,10 @@ public static class ImageEndpoints
     {
         group.MapGet("get/{id}", async (int id, IMediator mediator, bool download = false) =>
         {
+            if (id <= 0)
+                return Results.BadRequest(new ApiResponseResult(true,
+                    [Error.Validation(description: "Id should be 1 and above.")]));
+            
             var response = await mediator.Send(new GetImageRequest()
             {
                 Id = id
@@ -17,7 +22,7 @@ public static class ImageEndpoints
 
             if (response.IsError)
             {
-                return Results.NotFound(response.FirstError);
+                return Results.BadRequest(new ApiResponseResult(response.IsError, response.Errors));
             }
 
             var contentType = $"image/{response.Value.Image.ImageExtension.TrimStart('.')}";
