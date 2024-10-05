@@ -40,21 +40,32 @@ Follow these steps to set up and run the Cat Scraper API:
 
 3. **Update "CatsApi:ApiKey"**
    Open `appsettings.{ENV}.json` and provide your actual CaaS API key.
-   Alternatively, you can provide your actual CaaS API key in the Authorize function of swagger since the API project takes into consideration the 'x-api-key' for a user provided API key, which also override the apps API key.~~~~
+   Alternatively, you can provide your actual CaaS API key in the Authorize function of swagger since the API project takes into consideration the 'x-api-key' for a user provided API key, which also override the apps API key.
    ```json
      "CatsApi" : {
        "ApiKey" : ""
      }
    ```
-
-4. **Build and Run the Docker Image**
+4. **Build and Run the Project in Release Mode**
+   ```
+   dotnet build "./CatScraper/CatScraper.csproj" --configuration Release && dotnet run --project "./CatScraper/CatScraper.csproj" --configuration Release
+   ```
+5. **Build and Run the Docker Image**
    ```
    make docker-build
    ```
    
-5. **Access the API**
-   The API will now be running on `http://localhost:5000`. You can access the Swagger UI at `http://localhost:5000/swagger`.
-
+6. **Access the API**
+   In case you want to run the API and database through docker make sure the ports 5195 and 1433 are not used.
+   To run the project though docker use:
+   ```
+   docker compuse up -d
+   ```
+   The API will now be running on `http://localhost:5195`. You can access the Swagger UI at `http://localhost:5195/swagger/index.html`.
+   To shut down the containers use:
+   ```
+   docker compose down
+   ```
 ## API Endpoints
 
 - `POST /api/cats/fetch`: Fetch 25 cat images from CaaS API and save them to the database.
