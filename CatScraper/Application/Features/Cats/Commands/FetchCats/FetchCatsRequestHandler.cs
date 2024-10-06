@@ -79,7 +79,11 @@ public class FetchCatsRequestHandler : IRequestHandler<FetchCatsRequest, ErrorOr
 
             if (existingCatIds.Count == 25)
                 return Error.Failure(description: "Cats are already in our database");
-
+            /*
+                Given any existingCatIds less than 25 a functionality to ensure 
+                exactly 25 cats will be added into our database could be implemented 
+                (eg. recursive calls or a background job)
+             */
             fetchCatsResponses = fetchCatsResponses
                 .Where(i => !existingCatIds.Contains(i.Id))
                 .ToList();
@@ -195,7 +199,7 @@ public class FetchCatsRequestHandler : IRequestHandler<FetchCatsRequest, ErrorOr
             ImageExtension = imageExtension
         };
     }
-
+    
     private async Task<List<CatsApiResponse>> GetFetchCatsResponses(int page,
         CancellationToken cancellationToken = default)
     {
